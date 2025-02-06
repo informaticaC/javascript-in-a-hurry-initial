@@ -177,12 +177,12 @@ function productsHandler(){
 			productAuthor.innerHTML = product.author;
 			productDetails.appendChild(productAuthor);
 			let priceTitle = document.createElement("p");
-			priceTitle.classList.add("product-price");
+			priceTitle.classList.add("price-title");
 			priceTitle.innerHTML = "Price";
 			productDetails.appendChild(priceTitle);
 			let productPrice = document.createElement("p");
 			productPrice.classList.add("product-price");
-			productPrice.innerHTML = product.price;
+			productPrice.innerHTML = product.price > 0 ? "$" + product.price.toFixed(2) : "Free";
 			productDetails.appendChild(productPrice);
 		
 						
