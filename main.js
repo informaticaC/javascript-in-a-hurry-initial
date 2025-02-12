@@ -154,11 +154,10 @@ function galleryHandler(){
 
 // Product section
 
-function productsHandler(){
-	const productContainer = document.querySelector(".products-area");
+function populateProducts(productList){
 	let productItem;
-	
-	products.forEach((product,index)=>{
+	const productContainer = document.querySelector(".products-area");
+	productList.forEach((product,index)=>{
 
 		productItem = document.createElement("div") ;
 		productItem.classList.add("product-item");
@@ -190,20 +189,26 @@ function productsHandler(){
 		productItem.appendChild(productDetails);
 		productContainer.appendChild(productItem);
 	})
+};
 
+function productsHandler(){
+	//let productItem;
+	
+	populateProducts(products);
+
+	let totalProducts = products.length;
+	document.querySelector(".products-filter label[for=all] span.product-amount").textContent = totalProducts;
+
+	let payProducts = products.filter(function (product){
+		return product.price > 0;
+	});
+	document.querySelector(".products-filter label[for=paid] span.product-amount").textContent = payProducts.length;
+
+	let freeProducts = products.filter(product => {
+		return product.price == 0 || !product.price; 
+	})
+	document.querySelector(".products-filter label[for=free] span.product-amount").textContent = freeProducts.length;
 }
-
-{/* <div class="product-item">
-	<img src="./assets/products/img6.png" alt="AstroFiction" />
-	<div class="product-details">
-		<h3 class="product-title">AstroFiction</h3>
-		<p class="product-author">John Doe</p>
-		<p class="price-title">Price</p>
-		<p class="product-price">$ 49.90</p>
-	</div>
-</div> */}
-
-
 //Page load
 
 menuHandler();
