@@ -1,3 +1,7 @@
+// Open Weather api
+const weatherAPIKey = 'f054e09ba76d80b0ea24c122a6a6d982'
+const weatherAPIURL = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=${weatherAPIKey}&units=metric`
+
 // Image Gallery
 const galleryImages = [
 	{
@@ -68,8 +72,8 @@ function menuHandler() {
 
 
 // Temperature conversion
-function celsiusToFahr(temperature) {
-	let fahr = (temperature * 9/5) + 32;
+function selsiusToFahr(temperature) {
+	let fahr = ((temperature  )* 9/5) + 32;
 	return fahr;
 }
 
@@ -89,14 +93,43 @@ function greetingHandler(){
 		greetingText = "Welcome!"
 	}
 	
-	const weatherCondition = "sunny";
-	const userLocation = "New York";
-	let temperature = 30;
-	let celsiusText = `The weather is ${weatherCondition} in ${userLocation} and it's ${temperature.toFixed(1) }°C outside.`;
-	let fahrText = `The weather is ${weatherCondition} in ${userLocation} and it's ${celsiusToFahr(temperature).toFixed(1) }°F outside.`;
+	let weatherCondition;
+	let userLocation ;
+	let temperature ;
+	let celsiusText;
+	let fahrText;
+
+	navigator.geolocation.getCurrentPosition( position => {
+		const latitude = position.coords.latitude;
+		const longitude = position.coords.longitude;
+		let url = weatherAPIURL
+				.replace("{lon}", longitude)
+				.replace("{lat}", latitude);
+							
+	fetch(url , { method: "GET"})
+			.then( response => (response.json()) )
+			.then( data => {
+				
+				weatherCondition = data.weather[0].description;
+				userLocation = data.name;
+				temperature = data.main.temp;
+				
+					celsiusText = `The weather is ${weatherCondition} in ${userLocation} and it's ${temperature.toFixed(1) }°C outside.`;
+					fahrText = `The weather is ${weatherCondition} in ${userLocation} and it's ${selsiusToFahr(temperature).toFixed(1) }°F outside.`;
+					document.querySelector("#greeting").innerHTML =  (greetingText) ;
+					document.querySelector("#weather").innerHTML = (celsiusText);
+				
+				
+			})
+			.catch (error => {
+				console.log(error)
+				/* celsiusText = `The weather is ${weatherCondition} in ${userLocation} and it's ${temperature.toFixed(1) }°C outside.`;
+				fahrText = `The weather is ${weatherCondition} in ${userLocation} and it's ${selsiusToFahr(temperature).toFixed(1) }°F outside.`; */
+				document.querySelector("#greeting").innerHTML =  (greetingText) ;
+				document.querySelector("#weather").innerHTML = ("I can't get the weather data now, try later please.");
+			})
+	}); 
 	
-	document.querySelector("#greeting").innerHTML = (greetingText);
-	document.querySelector("#weather").innerHTML= (celsiusText);
 	
 	document.querySelector(".weather-group").addEventListener("click", function(e){
 		//console.log(e.target.id);
@@ -197,18 +230,37 @@ function productsHandler(){
 	populateProducts(products);
 
 	let totalProducts = products.length;
+	
+	let payProducts = products.filter(product => (product.price > 0) );
+	
+	let freeProducts = products.filter(product => product.price <= 0 || !product.price );
+
 	document.querySelector(".products-filter label[for=all] span.product-amount").textContent = totalProducts;
-
-	let payProducts = products.filter(function (product){
-		return product.price > 0;
-	});
 	document.querySelector(".products-filter label[for=paid] span.product-amount").textContent = payProducts.length;
-
-	let freeProducts = products.filter(product => {
-		return product.price == 0 || !product.price; 
-	})
 	document.querySelector(".products-filter label[for=free] span.product-amount").textContent = freeProducts.length;
+
+	let productsFilter = document.querySelector(".products-filter");
+	let productsArea = document.querySelector(".products-area")
+	productsFilter.addEventListener("click", function(e){
+		productsArea.innerHTML = "";
+		let filterSelected = e.target.id;
+		if (filterSelected === "all") {
+			populateProducts(products);
+		} else if(filterSelected === "paid"){
+			populateProducts(payProducts);
+		} else if(filterSelected === "free"){
+			populateProducts(freeProducts);
+		};
+	})
 }
+
+// Footer
+function footerHandler(){
+	let currentYear = new Date().getFullYear();
+	document.querySelector("footer").textContent = `© ${currentYear} - All rights reserved`
+}
+
+
 //Page load
 
 menuHandler();
@@ -216,3 +268,5 @@ greetingHandler();
 clockHandler();
 galleryHandler();
 productsHandler();
+footerHandler();
+
